@@ -1,59 +1,35 @@
 import numpy as np
 import cv2 as cv
 import matplotlib.pyplot as plt
-import ColorTrecbar as ct
 # pip3 install opencv-python qrcode
 ##########################################################################################
-def TakeCoordinates(event, x_cord, y_cord, flags, param):
+def TakeCoordinates(event, x_cord, y_cord, flags, param):  # Функция получение координат точки или обьекта по щелчку мыши.
     if event == cv.EVENT_LBUTTONDOWN:
         xy_coordinates[0] = x_cord
         xy_coordinates[1] = y_cord
-def ColorInit (cap):
-    while True:
-        ret, frame = cap.read()
-        if frame is None:
-            break
-        frame_HSV = cv.cvtColor(frame, cv.COLOR_BGR2HSV)
-        frame_threshold = cv.inRange(frame_HSV, (ct.low_H, ct.low_S, ct.low_V), (ct.high_H, ct.high_S, ct.high_V))
-        cv.imshow(ct.window_capture_name, frame)
-        cv.imshow(ct.window_detection_name, frame_threshold)
-
-        key = cv.waitKey(30)
-        if key == ord('q') or key == 27:
-            return ct.low_H, ct.low_S, ct.low_V,ct.high_H, ct.high_S, ct.high_V
-            break
-
-def CollectInformationArray(img):
-    if len(data_inf) < (injured_number * 2):
-        data_inf.append(xy_coordinates[0])
-        data_inf.append(xy_coordinates[1])
-    else:
-        if len(data_img) < 4:
-            data_img.append(xy_coordinates[0])
-            data_img.append(xy_coordinates[1])
+        if len(data_inf) <= (injured_number * 2):
+            data_inf.append(xy_coordinates[0])
+            data_inf.append(xy_coordinates[1])
         else:
-            AreaInit(img, data_img)
+            if len(data_img) < 4:
+                data_img.append(xy_coordinates[0])
+                data_img.append(xy_coordinates[1])
+
+def CollectInformationArray(img):  # Формирования списка для отправки по запросу
+    if len(data_img) >= 4:
+        AreaInit(img, data_img)
 def TakeAngle():
     angle = 1  # Функция определения ориентации Написать
     return angle
-def CalculationCenterSquare(number_1, number_2):  # x,y,w,h
+def CalculationCenterSquare(number_1, number_2):  # x,y,w,h расчет центра квадрата, описывающего искомый обьект
     x_cord = number_1/5
     y_cord = number_2/5
     return x_cord, y_cord
-def ConvertationPixelINCoordinates(x, y):
+def ConvertationPixelINCoordinates(x, y): # Конветор пикселей в координаты
     ##### НАПИСАТЬ МЕТОД ########
-    cord_x = 1###
-    cord_y = 1###
+    cord_x = x  ###
+    cord_y = y  ###
     return cord_x, cord_y
-# def FormationCommonList(data1, data2, data3):
-#     common_list = []
-#     for i in data1:
-#         common_list.append(i)
-#     for i in data2:
-#         common_list.append(i)
-#     for i in data3:
-#         common_list.append(i)
-#     return common_list
 def AreaInit(img, list_data):
     # Координаты двух точек прямоугольника искомого изображения
     x_1 = list_data[0]
@@ -72,6 +48,7 @@ def AreaInit(img, list_data):
         else:
             img_cut = img[x_1:x_2, y_1:y_2]
     plt.imsave("img_cut.jpg", img_cut)
+
 ##########################################################################################
 injured_number = int(input("Input number of injured "))
 xy_coordinates =[0, 0]
@@ -80,9 +57,7 @@ data_inf = []
 data_img = []
 k_take_xy, x_sum, y_sum, w_sum, h_sum = 0, 0, 0, 0, 0
 ########################################################################################3
-cap = cv.VideoCapture(0)#("C:/Users/User_I/Desktop/bandicam.mp4")
-low_H, low_S, low_V,high_H, high_S, high_V = ColorInit(cap)
-print(low_H, low_S, low_V,high_H, high_S, high_V)
+cap = cv.VideoCapture("C:/Users/User_I/Desktop/bandicam.mp4")
 template = cv.imread('C:/Users/User_I/Desktop/img2.png', 0)
 w, h = template.shape[::-1]
 methods = ['cv.TM_CCOEFF', 'cv.TM_CCOEFF_NORMED', 'cv.TM_CCORR',
@@ -114,7 +89,7 @@ while True:
             top_left = max_loc
         x, y = top_left[0], top_left[1]
     ######################################################################################
-    w1, h1 =60, 60 # 150, 150
+    w1, h1 =60, 60  # 150, 150
     track_window = (x, y, w1, h1)
     # set up the ROI for tracking
     roi = frame[y:y + h, x:x + w]
@@ -138,30 +113,33 @@ while True:
             x, y, w, h = track_window
             ##############################################################################################
             if k_take_xy < 5:
-                x_sum += x +w/2
-                y_sum += y +h/2
+                x_sum += x + w / 2
+                y_sum += y + h / 2
                 k_take_xy += 1
             else:
                 data_cord[0], data_cord[1] = CalculationCenterSquare(x_sum, y_sum)
                 k_take_xy, x_sum, y_sum = 0, 0, 0
-            print("data_cord = ", data_cord)
             ###########################################################################################
             img2 = cv.rectangle(frame, (x, y), (x + w, y + h), 255, 2)
             ###########################################################################################
             img = cv.cvtColor(frame, cv.COLOR_RGB2GRAY)
-            #print(data_inf[(injured_number*2)-1])
             cv.namedWindow("image")
             cv.setMouseCallback("image", TakeCoordinates)
             ###########################################################################################
             ###########################################################################################
-            if (injured_number*2)==len(data_inf):
+            if (injured_number*2) == len(data_inf):
                 data_inf.append(x)
                 data_inf.append(y)
+                data_inf.append(TakeAngle())
             if(injured_number*2) < len(data_inf):
-                data_inf[injured_number*2] = x
+                data_inf[injured_number * 2] = x
                 data_inf[injured_number * 2 + 1] = y
-                #data_inf[injured_number * 2 + 2] = TakeAngle()
+                data_inf[injured_number * 2 + 2] = TakeAngle()
             ###########################################################################################
+            print("data_cord = ", data_cord)
+            print("xy_coordinates = ", xy_coordinates)
+            print("data_inf = ", data_inf)
+            ############################################################################################################
             cv.imshow('image', img2)
             k = cv.waitKey(30) & 0xff
             if k == 27:

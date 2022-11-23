@@ -1,12 +1,28 @@
 import numpy as np
 import cv2 as cv
-import argparse
+import ColorTrecbar as ct
+# import argparse
 # parser = argparse.ArgumentParser(description='This sample demonstrates the meanshift algorithm. \
 #                                               The example file can be downloaded from: \
 #                                               https://www.bogotobogo.com/python/OpenCV_Python/images/mean_shift_tracking/slow_traffic_small.mp4')
 # parser.add_argument('image', type=str, help='path to image file')
 # args = parser.parse_args()
-cap = cv.VideoCapture("/home/ivan/Desktop/ivan/vid.mp4")#(0)
+cap = cv.VideoCapture(0)  # (args.image)
+############################ Video color ###############################################################################
+# while True:
+#     ret, frame = cap.read()
+#     if frame is None:
+#         break
+#     frame_HSV = cv.cvtColor(frame, cv.COLOR_BGR2HSV)
+#     frame_threshold = cv.inRange(frame_HSV, (ct.low_H, ct.low_S, ct.low_V), (ct.high_H, ct.high_S, ct.high_V))
+#     cv.imshow(ct.window_capture_name, frame)
+#     cv.imshow(ct.window_detection_name, frame_threshold)
+#     low_H, low_S, low_V, high_H, high_S, high_V = ct.low_H, ct.low_S, ct.low_V, ct.high_H, ct.high_S, ct.high_V
+#     key = cv.waitKey(30)
+#     if key == ord('q') or key == 27:
+#         break
+########################################################################################################################
+# print( low_H, low_S, low_V, high_H, high_S, high_V)
 # take first frame of the video
 ret, frame = cap.read()
 # setup initial location of window
