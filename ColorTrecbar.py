@@ -82,13 +82,11 @@ cv.createTrackbar(high_S_name, window_detection_name, high_S, max_value, on_high
 cv.createTrackbar(low_V_name, window_detection_name, low_V, max_value, on_low_V_thresh_trackbar)
 cv.createTrackbar(high_V_name, window_detection_name, high_V, max_value, on_high_V_thresh_trackbar)
 while True:
-
     ret, frame = cap.read()
     if frame is None:
         break
     frame_HSV = cv.cvtColor(frame, cv.COLOR_BGR2HSV)
     frame_threshold = cv.inRange(frame_HSV, (low_H, low_S, low_V), (high_H, high_S, high_V))
-
     cv.imshow(window_capture_name, frame)
     cv.imshow(window_detection_name, frame_threshold)
 

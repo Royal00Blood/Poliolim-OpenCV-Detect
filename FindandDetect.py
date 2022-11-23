@@ -1,12 +1,27 @@
 import numpy as np
 import cv2 as cv
 import matplotlib.pyplot as plt
+import ColorTrecbar as ct
 # pip3 install opencv-python qrcode
 ##########################################################################################
 def TakeCoordinates(event, x_cord, y_cord, flags, param):
     if event == cv.EVENT_LBUTTONDOWN:
         xy_coordinates[0] = x_cord
         xy_coordinates[1] = y_cord
+def ColorInit (cap):
+    while True:
+        ret, frame = cap.read()
+        if frame is None:
+            break
+        frame_HSV = cv.cvtColor(frame, cv.COLOR_BGR2HSV)
+        frame_threshold = cv.inRange(frame_HSV, (ct.low_H, ct.low_S, ct.low_V), (ct.high_H, ct.high_S, ct.high_V))
+        cv.imshow(ct.window_capture_name, frame)
+        cv.imshow(ct.window_detection_name, frame_threshold)
+
+        key = cv.waitKey(30)
+        if key == ord('q') or key == 27:
+            return ct.low_H, ct.low_S, ct.low_V,ct.high_H, ct.high_S, ct.high_V
+            break
 
 def CollectInformationArray(img):
     if len(data_inf) < (injured_number * 2):
@@ -66,6 +81,8 @@ data_img = []
 k_take_xy, x_sum, y_sum, w_sum, h_sum = 0, 0, 0, 0, 0
 ########################################################################################3
 cap = cv.VideoCapture(0)#("C:/Users/User_I/Desktop/bandicam.mp4")
+low_H, low_S, low_V,high_H, high_S, high_V = ColorInit(cap)
+print(low_H, low_S, low_V,high_H, high_S, high_V)
 template = cv.imread('C:/Users/User_I/Desktop/img2.png', 0)
 w, h = template.shape[::-1]
 methods = ['cv.TM_CCOEFF', 'cv.TM_CCOEFF_NORMED', 'cv.TM_CCORR',
