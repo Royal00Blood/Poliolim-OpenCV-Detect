@@ -9,6 +9,8 @@ import matplotlib.pyplot as plt
 # _Функция получение координат точки или обьекта по щелчку мыши (Function to get the coordinates of a point or
 # object on a mouse click)
 def TakeCoordinates(event, x_cord, y_cord, flags, param):
+    pixelCord[0] = x_cord
+    pixelCord[1] = y_cord
     x_cord, y_cord = ConvertationPixelINCoordinates(x_cord, y_cord)
     if event == cv.EVENT_LBUTTONDOWN:
         xy_coordinates[0] = x_cord
@@ -68,13 +70,14 @@ xy_coordinates = [0, 0]
 data_cord = [0, 0]
 data_inf = []
 data_img = []
+pixelCord = [0, 0]
 # __
 k_take_xy, x_sum, y_sum, w_sum, h_sum = 0, 0, 0, 0, 0
 ########################################################################################################################
 # __Оновная программа__(Main)
 # __ Часть первая. Чтение видео-потока.
-cap = cv.VideoCapture("C:/Users/User_I/Desktop/bandicam.mp4")
-template = cv.imread('C:/Users/User_I/Desktop/img2.png', 0)
+cap = cv.VideoCapture(0)#("C:/Users/User_I/Desktop/Poliolimp/bandicam.mp4")
+template = cv.imread('C:/Users/User_I/Desktop/Poliolimp/img2.png', 0)
 w, h = template.shape[::-1]
 methods = ['cv.TM_CCOEFF', 'cv.TM_CCOEFF_NORMED', 'cv.TM_CCORR',
            'cv.TM_CCORR_NORMED', 'cv.TM_SQDIFF', 'cv.TM_SQDIFF_NORMED']
@@ -91,29 +94,32 @@ while True:
     ##########################################################################################
     AreaInit(frame, data_img)
     ##########################################################################################
-    for meth in methods:
-        _, img = cap.read()
-        method = eval(meth)
-        # Apply template Matching
-        img = cv.cvtColor(img, cv.COLOR_RGB2GRAY)
-        res = cv.matchTemplate(img, template, method)
-        min_val, max_val, min_loc, max_loc = cv.minMaxLoc(res)
-        # If the method is TM_SQDIFF or TM_SQDIFF_NORMED, take minimum
-        if method in [cv.TM_SQDIFF, cv.TM_SQDIFF_NORMED]:
-            top_left = min_loc
-        else:
-            top_left = max_loc
-        x, y = top_left[0], top_left[1]
+    # for meth in methods:
+    #     _, img = cap.read()
+    #     method = eval(meth)
+    #     # Apply template Matching
+    #     img = cv.cvtColor(img, cv.COLOR_RGB2GRAY)
+    #     res = cv.matchTemplate(img, template, method)
+    #     min_val, max_val, min_loc, max_loc = cv.minMaxLoc(res)
+    #     # If the method is TM_SQDIFF or TM_SQDIFF_NORMED, take minimum
+    #     if method in [cv.TM_SQDIFF, cv.TM_SQDIFF_NORMED]:
+    #         top_left = min_loc
+    #     else:
+    #         top_left = max_loc
+    #     x, y = top_left[0], top_left[1]
     ######################################################################################
+    cv.setMouseCallback("image", TakeCoordinates)
+
+    x, y = pixelCord[0], pixelCord[1]
     w1, h1 = 60, 60  # 150, 150
     track_window = (x, y, w1, h1)
     # set up the ROI for tracking
     roi = frame[y:y + h, x:x + w]
     hsv_roi = cv.cvtColor(roi, cv.COLOR_BGR2HSV)
     # mask = cv.inRange(hsv_roi, np.array((133., 0., 227.)), np.array((180., 255., 255.)))
-    mask = cv.inRange(hsv_roi, np.array((120., 110., 215.)), np.array((180., 255., 255.)))
+    # mask = cv.inRange(hsv_roi, np.array((120., 110., 215.)), np.array((180., 255., 255.)))
     # 115 97 96 255 255 255
-    # mask = cv.inRange(hsv_roi, np.array((129., 74., 82.)), np.array((180., 153., 255.)))
+    mask = cv.inRange(hsv_roi, np.array((144., 0., 205.)), np.array((180., 153., 255.)))
     roi_hist = cv.calcHist([hsv_roi], [0], mask, [180], [0, 180])
     cv.normalize(roi_hist, roi_hist, 0, 255, cv.NORM_MINMAX)
     # Setup the termination criteria, either 10 iteration or move by at least 1 pt
