@@ -1,9 +1,13 @@
+# Libraries
+########################################################################################################################
 import numpy as np
 import cv2 as cv
 import matplotlib.pyplot as plt
-# pip3 install opencv-python qrcode
-##########################################################################################
+########################################################################################################################
+# Custom Functions
+########################################################################################################################
 def TakeCoordinates(event, x_cord, y_cord, flags, param):  # Функция получение координат точки или обьекта по щелчку мыши.
+    x_cord, y_cord = ConvertationPixelINCoordinates(x_cord, y_cord)
     if event == cv.EVENT_LBUTTONDOWN:
         xy_coordinates[0] = x_cord
         xy_coordinates[1] = y_cord
@@ -15,22 +19,31 @@ def TakeCoordinates(event, x_cord, y_cord, flags, param):  # Функция по
                 data_img.append(xy_coordinates[0])
                 data_img.append(xy_coordinates[1])
 
-def CollectInformationArray(img):  # Формирования списка для отправки по запросу
+
+def CollectInformationArray(img_in):  # Формирования списка для отправки по запросу
     if len(data_img) >= 4:
-        AreaInit(img, data_img)
+        AreaInit(img_in, data_img)
+
+
 def TakeAngle():
     angle = 1  # Функция определения ориентации Написать
     return angle
+
+
 def CalculationCenterSquare(number_1, number_2):  # x,y,w,h расчет центра квадрата, описывающего искомый обьект
-    x_cord = number_1/5
-    y_cord = number_2/5
+    x_cord = number_1 / 5
+    y_cord = number_2 / 5
     return x_cord, y_cord
-def ConvertationPixelINCoordinates(x, y): # Конветор пикселей в координаты
-    ##### НАПИСАТЬ МЕТОД ########
-    cord_x = x  ###
-    cord_y = y  ###
+
+
+def ConvertationPixelINCoordinates(x_conv, y_conv):  # Конветор пикселей в координаты
+    q = 1.57
+    cord_x = x_conv * q
+    cord_y = y_conv * q
     return cord_x, cord_y
-def AreaInit(img, list_data):
+
+
+def AreaInit(img_in, list_data):
     # Координаты двух точек прямоугольника искомого изображения
     x_1 = list_data[0]
     y_1 = list_data[1]
@@ -38,25 +51,30 @@ def AreaInit(img, list_data):
     y_2 = list_data[3]
     # Получение изображения
     if x_1 > x_2:
-        if y_1>y_2:
-            img_cut = img[x_2:x_1, y_2:y_1]
+        if y_1 > y_2:
+            img_cut = img_in[x_2:x_1, y_2:y_1]
         else:
-            img_cut = img[x_2:x_1, y_1:y_2]
+            img_cut = img_in[x_2:x_1, y_1:y_2]
     else:
-        if y_1>y_2:
-            img_cut = img[x_1:x_2, y_2:y_1]
+        if y_1 > y_2:
+            img_cut = img_in[x_1:x_2, y_2:y_1]
         else:
-            img_cut = img[x_1:x_2, y_1:y_2]
+            img_cut = img_in[x_1:x_2, y_1:y_2]
     plt.imsave("img_cut.jpg", img_cut)
 
-##########################################################################################
+########################################################################################################################
+# __Переменные__(Variables)
+# __Количество целевых точек__(Number of target points)
 injured_number = int(input("Input number of injured "))
-xy_coordinates =[0, 0]
+# __Списки данных__(Data Lists)
+xy_coordinates = [0, 0]
 data_cord = [0, 0]
 data_inf = []
 data_img = []
+# __
 k_take_xy, x_sum, y_sum, w_sum, h_sum = 0, 0, 0, 0, 0
-########################################################################################3
+########################################################################################################################
+# __Оновная программа__(Main)
 cap = cv.VideoCapture("C:/Users/User_I/Desktop/bandicam.mp4")
 template = cv.imread('C:/Users/User_I/Desktop/img2.png', 0)
 w, h = template.shape[::-1]
@@ -89,15 +107,15 @@ while True:
             top_left = max_loc
         x, y = top_left[0], top_left[1]
     ######################################################################################
-    w1, h1 =60, 60  # 150, 150
+    w1, h1 = 60, 60  # 150, 150
     track_window = (x, y, w1, h1)
     # set up the ROI for tracking
     roi = frame[y:y + h, x:x + w]
     hsv_roi = cv.cvtColor(roi, cv.COLOR_BGR2HSV)
-    #mask = cv.inRange(hsv_roi, np.array((133., 0., 227.)), np.array((180., 255., 255.)))
-    #mask = cv.inRange(hsv_roi, np.array((120., 110., 215.)), np.array((180., 255., 255.)))
-    #115 97 96 255 255 255
-    mask = cv.inRange(hsv_roi, np.array((131., 103., 216.)), np.array((255., 255., 255.)))
+    # mask = cv.inRange(hsv_roi, np.array((133., 0., 227.)), np.array((180., 255., 255.)))
+    # mask = cv.inRange(hsv_roi, np.array((120., 110., 215.)), np.array((180., 255., 255.)))
+    # 115 97 96 255 255 255
+    mask = cv.inRange(hsv_roi, np.array((129., 74., 82.)), np.array((180., 153., 255.)))
     roi_hist = cv.calcHist([hsv_roi], [0], mask, [180], [0, 180])
     cv.normalize(roi_hist, roi_hist, 0, 255, cv.NORM_MINMAX)
     # Setup the termination criteria, either 10 iteration or move by at least 1 pt
@@ -127,11 +145,11 @@ while True:
             cv.setMouseCallback("image", TakeCoordinates)
             ###########################################################################################
             ###########################################################################################
-            if (injured_number*2) == len(data_inf):
+            if (injured_number * 2) == len(data_inf):
                 data_inf.append(x)
                 data_inf.append(y)
                 data_inf.append(TakeAngle())
-            if(injured_number*2) < len(data_inf):
+            if (injured_number * 2) < len(data_inf):
                 data_inf[injured_number * 2] = x
                 data_inf[injured_number * 2 + 1] = y
                 data_inf[injured_number * 2 + 2] = TakeAngle()

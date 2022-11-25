@@ -1,6 +1,5 @@
 from __future__ import print_function
 import cv2 as cv
-import argparse
 
 max_value = 255
 max_value_H = 360 // 2

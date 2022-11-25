@@ -1,37 +1,33 @@
+import ColorTrecbar as ct
 import cv2
 import numpy as np
-import ColorTrecbar as ct
 
-if __name__ == '__main__':
-    def callback(*arg):
-        print(arg)
-
-
-def ColorOn(cap):
-    while True:
-        ret, frame = cap.read()
-        if frame is None:
-            break
-        frame_HSV = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-        frame_threshold = cv2.inRange(frame_HSV, (ct.low_H, ct.low_S, ct.low_V), (ct.high_H, ct.high_S, ct.high_V))
-
-        cv2.imshow(ct.window_capture_name, frame)
-        cv2.imshow(ct.window_detection_name, frame_threshold)
-
-        key = cv2.waitKey(30)
-        if key == ord('q') or key == 27:
-            return ct.low_H, ct.low_S, ct.low_V, ct.high_H, ct.high_S, ct.high_V
-
-
-cv2.namedWindow("result")
+# if __name__ == '__main__':
+#     def callback(*arg):
+#         print(arg)
 
 cap = cv2.VideoCapture(0)
-low_H, low_S, low_V, high_H, high_S, high_V = ColorOn(cap)
+while True:
+    ret, frame = cap.read()
+    if frame is None:
+        break
+    frame_HSV = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+    frame_threshold = cv2.inRange(frame_HSV, (ct.low_H, ct.low_S, ct.low_V), (ct.high_H, ct.high_S, ct.high_V))
+
+    cv2.imshow(ct.window_capture_name, frame)
+    cv2.imshow(ct.window_detection_name, frame_threshold)
+    low_H, low_S, low_V, high_H, high_S, high_V = ct.low_H, ct.low_S, ct.low_V, ct.high_H, ct.high_S, ct.high_V
+    key = cv2.waitKey(30)
+    if key == ord('q') or key == 27:
+        break
+#cap.release()
+cv2.destroyAllWindows()
+########################################################################################################################
+#cap = cv2.VideoCapture(0)
 hsv_min = np.array((low_H, low_S, low_V), np.uint8)
 hsv_max = np.array((high_H, high_S, high_V), np.uint8)
-
+cv2.namedWindow("result")
 color_yellow = (0, 255, 255)
-
 
 while True:
     flag, img = cap.read()
