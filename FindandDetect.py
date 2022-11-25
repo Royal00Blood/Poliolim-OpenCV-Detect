@@ -6,7 +6,9 @@ import matplotlib.pyplot as plt
 ########################################################################################################################
 # Custom Functions
 ########################################################################################################################
-def TakeCoordinates(event, x_cord, y_cord, flags, param):  # Функция получение координат точки или обьекта по щелчку мыши.
+# _Функция получение координат точки или обьекта по щелчку мыши (Function to get the coordinates of a point or
+# object on a mouse click)
+def TakeCoordinates(event, x_cord, y_cord, flags, param):
     x_cord, y_cord = ConvertationPixelINCoordinates(x_cord, y_cord)
     if event == cv.EVENT_LBUTTONDOWN:
         xy_coordinates[0] = x_cord
@@ -19,49 +21,44 @@ def TakeCoordinates(event, x_cord, y_cord, flags, param):  # Функция по
                 data_img.append(xy_coordinates[0])
                 data_img.append(xy_coordinates[1])
 
-
-def CollectInformationArray(img_in):  # Формирования списка для отправки по запросу
-    if len(data_img) >= 4:
-        AreaInit(img_in, data_img)
-
-
-def TakeAngle():
-    angle = 1  # Функция определения ориентации Написать
+# _Функция определения ориентации //Написать//(Object Orientation Function)
+def Object_Orientation_Function():
+    angle = 1
     return angle
 
-
-def CalculationCenterSquare(number_1, number_2):  # x,y,w,h расчет центра квадрата, описывающего искомый обьект
+# _Расчет центра квадрата, описывающего искомый обьект
+# (Calculation of the center of the square describing the desired object)
+def CalculationCenterSquare(number_1, number_2):
     x_cord = number_1 / 5
     y_cord = number_2 / 5
     return x_cord, y_cord
 
-
-def ConvertationPixelINCoordinates(x_conv, y_conv):  # Конветор пикселей в координаты
+# Преобразование пикселей в координаты
+def ConvertationPixelINCoordinates(x_conv, y_conv):
     q = 1.57
     cord_x = x_conv * q
     cord_y = y_conv * q
     return cord_x, cord_y
-
-
+# Выделение области захвата. (Selection of the capture area)
 def AreaInit(img_in, list_data):
-    # Координаты двух точек прямоугольника искомого изображения
-    x_1 = list_data[0]
-    y_1 = list_data[1]
-    x_2 = list_data[2]
-    y_2 = list_data[3]
-    # Получение изображения
-    if x_1 > x_2:
-        if y_1 > y_2:
-            img_cut = img_in[x_2:x_1, y_2:y_1]
+    if len(list_data) >= 4:
+        # Координаты двух точек прямоугольника искомого изображения
+        x_1 = list_data[0]
+        y_1 = list_data[1]
+        x_2 = list_data[2]
+        y_2 = list_data[3]
+        # Получение изображения
+        if x_1 > x_2:
+            if y_1 > y_2:
+                img_cut = img_in[x_2:x_1, y_2:y_1]
+            else:
+                img_cut = img_in[x_2:x_1, y_1:y_2]
         else:
-            img_cut = img_in[x_2:x_1, y_1:y_2]
-    else:
-        if y_1 > y_2:
-            img_cut = img_in[x_1:x_2, y_2:y_1]
-        else:
-            img_cut = img_in[x_1:x_2, y_1:y_2]
-    plt.imsave("img_cut.jpg", img_cut)
-
+            if y_1 > y_2:
+                img_cut = img_in[x_1:x_2, y_2:y_1]
+            else:
+                img_cut = img_in[x_1:x_2, y_1:y_2]
+        plt.imsave("img_cut.jpg", img_cut)
 ########################################################################################################################
 # __Переменные__(Variables)
 # __Количество целевых точек__(Number of target points)
@@ -75,23 +72,24 @@ data_img = []
 k_take_xy, x_sum, y_sum, w_sum, h_sum = 0, 0, 0, 0, 0
 ########################################################################################################################
 # __Оновная программа__(Main)
+# __ Часть первая. Чтение видео-потока.
 cap = cv.VideoCapture("C:/Users/User_I/Desktop/bandicam.mp4")
 template = cv.imread('C:/Users/User_I/Desktop/img2.png', 0)
 w, h = template.shape[::-1]
 methods = ['cv.TM_CCOEFF', 'cv.TM_CCOEFF_NORMED', 'cv.TM_CCORR',
            'cv.TM_CCORR_NORMED', 'cv.TM_SQDIFF', 'cv.TM_SQDIFF_NORMED']
 if not cap.isOpened():
-    print("Error video opened")
+    print("Error video opened") # Ошибка открытия видео
     exit()
 ##########################################################################################
 while True:
-    # Capture frame by frame
+    # Захват кадр за кадром (Capture frame by frame)
     ret, frame = cap.read()
     if not ret:
-        print("Can't receive frame (stream end?). Exiting ...")
+        print("Can't receive frame (stream end?). Exiting ...") # Не удается получить кадр (конец потока?). Выход...
         break
     ##########################################################################################
-    CollectInformationArray(frame)
+    AreaInit(frame, data_img)
     ##########################################################################################
     for meth in methods:
         _, img = cap.read()
@@ -113,9 +111,9 @@ while True:
     roi = frame[y:y + h, x:x + w]
     hsv_roi = cv.cvtColor(roi, cv.COLOR_BGR2HSV)
     # mask = cv.inRange(hsv_roi, np.array((133., 0., 227.)), np.array((180., 255., 255.)))
-    # mask = cv.inRange(hsv_roi, np.array((120., 110., 215.)), np.array((180., 255., 255.)))
+    mask = cv.inRange(hsv_roi, np.array((120., 110., 215.)), np.array((180., 255., 255.)))
     # 115 97 96 255 255 255
-    mask = cv.inRange(hsv_roi, np.array((129., 74., 82.)), np.array((180., 153., 255.)))
+    # mask = cv.inRange(hsv_roi, np.array((129., 74., 82.)), np.array((180., 153., 255.)))
     roi_hist = cv.calcHist([hsv_roi], [0], mask, [180], [0, 180])
     cv.normalize(roi_hist, roi_hist, 0, 255, cv.NORM_MINMAX)
     # Setup the termination criteria, either 10 iteration or move by at least 1 pt
@@ -148,11 +146,11 @@ while True:
             if (injured_number * 2) == len(data_inf):
                 data_inf.append(x)
                 data_inf.append(y)
-                data_inf.append(TakeAngle())
+                data_inf.append(Object_Orientation_Function())
             if (injured_number * 2) < len(data_inf):
                 data_inf[injured_number * 2] = x
                 data_inf[injured_number * 2 + 1] = y
-                data_inf[injured_number * 2 + 2] = TakeAngle()
+                data_inf[injured_number * 2 + 2] = Object_Orientation_Function()
             ###########################################################################################
             print("data_cord = ", data_cord)
             print("xy_coordinates = ", xy_coordinates)
@@ -164,3 +162,4 @@ while True:
                 break
         else:
             break
+# cv.putText(img2, "%d-%d" % (x, y), (x + 10, y - 10), cv.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 255), 2)
