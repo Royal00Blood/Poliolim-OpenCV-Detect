@@ -14,26 +14,27 @@ def drawRectangle(action, x, y, flags, *userdata):
     elif action == cv.EVENT_LBUTTONUP:
         bottom_right_corner = [(x, y)]
         # Draw the rectangle
-        cv.rectangle(image, top_left_corner[0], bottom_right_corner[0], (0, 255, 0), 2, 8)
-        cv.imshow("Window", image)
+        cv.rectangle(frame, top_left_corner[0], bottom_right_corner[0], (0, 255, 0), 2, 8)
+        #SaveIMG()
+        cv.imshow("Window", frame)
+        x1,y1 = top_left_corner[0]
+        print(x1,y1)
         print(top_left_corner[0], bottom_right_corner[0])
-# Read Images
-image = cv.imread("C:/Users/User_I/PycharmProjects/Poliolim-OpenCV-Detect/data/0202.jpg")
-
-# Make a temporary image, will be useful to clear the drawing
-temp = image.copy()
-# Create a named window
+#def SaveIMG():
 cv.namedWindow("Window")
-# highgui function called when mouse events occur
-cv.setMouseCallback("Window", drawRectangle)
-k = 0
-# Close the window when key q is pressed
-while k != 113:
-    # Display the image
-    cv.imshow("Window", image)
-    k = cv.waitKey(0)
-    # If c is pressed, clear the window, using the dummy image
-    if (k == 99):
-        image = temp.copy()
-        cv.imshow("Window", image)
+cap = cv.VideoCapture(0)
+
+while True:
+    # Capture frame-by-frame
+    ret, frame = cap.read()
+
+    # Our operations on the frame come here
+    cv.setMouseCallback("Window", drawRectangle)
+
+    # Display the resulting frame
+    cv.imshow('Window', frame)
+    if cv.waitKey(1) & 0xFF == ord('q'):
+        break
+# When everything done, release the capture
+cap.release()
 cv.destroyAllWindows()
