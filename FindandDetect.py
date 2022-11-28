@@ -6,24 +6,27 @@ import matplotlib.pyplot as plt
 ########################################################################################################################
 # Custom Functions
 ########################################################################################################################
-# _Функция получение координат точки или обьекта по щелчку мыши (Function to get the coordinates of a point or
-# object on a mouse click)
+# _Функция получение координат точки или обьекта по щелчку мыши
+# (Function to get the coordinates of a point or object on a mouse click)
 def TakeCoordinates(event, x_cord, y_cord, flags, param):
-    pixelCord[0] = x_cord
-    pixelCord[1] = y_cord
-    x_cord, y_cord = ConvertationPixelINCoordinates(x_cord, y_cord)
     if event == cv.EVENT_LBUTTONDOWN:
-        xy_coordinates[0] = x_cord
-        xy_coordinates[1] = y_cord
-        if len(data_inf) <= (injured_number * 2):
-            data_inf.append(xy_coordinates[0])
-            data_inf.append(xy_coordinates[1])
-        else:
-            if len(data_img) < 4:
-                data_img.append(xy_coordinates[0])
-                data_img.append(xy_coordinates[1])
+        pixelCord[0] = x_cord
+        pixelCord[1] = y_cord
+        cv.putText(img2, "%d-%d" % (x, y), (x + 10, y - 10), cv.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 255), 2)
+def Write_to_data_array(pixelCord):
+    x_cord, y_cord = ConvertationPixelINCoordinates(pixelCord[0], pixelCord[1])
+    xy_coordinates[0] = x_cord
+    xy_coordinates[1] = y_cord
+    if len(data_inf) <= (injured_number * 2):
+        data_inf.append(xy_coordinates[0])
+        data_inf.append(xy_coordinates[1])
+    else:
+        if len(data_img) < 4:
+            data_img.append(xy_coordinates[0])
+            data_img.append(xy_coordinates[1])
 
-# _Функция определения ориентации //Написать//(Object Orientation Function)
+# _Функция определения ориентации //Написать//
+# (Object Orientation Function)
 def Object_Orientation_Function():
     angle = 1
     return angle
@@ -36,12 +39,15 @@ def CalculationCenterSquare(number_1, number_2):
     return x_cord, y_cord
 
 # Преобразование пикселей в координаты
+# (Converting income to coordinates)
 def ConvertationPixelINCoordinates(x_conv, y_conv):
     q = 1.57
     cord_x = x_conv * q
     cord_y = y_conv * q
     return cord_x, cord_y
-# Выделение области захвата. (Selection of the capture area)
+# Выделение области захвата.
+# (Selection of the capture area)
+# Изображение ROI
 def AreaInit(img_in, list_data):
     if len(list_data) >= 4:
         # Координаты двух точек прямоугольника искомого изображения
